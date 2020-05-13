@@ -101,3 +101,89 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         cv::waitKey(0);
     }
 }
+
+void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
+{   
+    cv::Ptr<cv::FeatureDetector> detector;
+
+    if(detectorType.compare("FAST") == 0)
+    {
+        int threshold = 30;
+        bool bNMS = true;
+        detector = cv::FastFeatureDetector::create(threshold, bNMS);
+    }
+    else if(detectorType.compare("BRISK") == 0)
+    {
+        cv::Ptr<cv::FeatureDetector> detector = cv::BRISK::create();
+    }
+    else if(detectorType.compare("SIFT") == 0)
+    {
+        cv::Ptr<cv::FeatureDetector> detector = cv::xfeatures2d::SIFT::create();
+    }
+    else if(detectorType.compare("AKAZE") == 0)
+    {
+        cv::Ptr<cv::FeatureDetector> detector = cv::AKAZE::create();
+    }
+    else if(detectorType.compare("ORB") == 0)
+    {
+        cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create();
+    }
+
+    detector->detect(img, keypoints);
+
+}
+
+void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{   
+    // Harris output
+    cv::Mat harrisOut = cv::Mat::zeros(img.size(), CV_32FC1);
+    cv::Mat normOut;
+    cv::Mat norScaledOut;
+
+    //Harris parameters
+    int blockSize = 2;
+    int apertureSize = 3; 
+    float k = 0.04;
+    int minResponse = 100;
+    double maxOverlapVal = 0.0f;
+
+    cv::cornerHarris(img, harrisOut, blockSize, apertureSize, k, cv::BORDER_DEFAULT);
+    cv::normalize(harrisOut, normOut, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+    cv::convertScaleAbs(normOut, norScaledOut);
+
+    //choose keypoints
+    for (int i = 0; i<normOut.rows; i++)
+    {
+        for (int j = 0; j<normOut.cols; j++)
+        {
+            if((int)normOut.at<float>(i,j) > minResponse)
+            {
+                cv::KeyPoint keyPoint;
+                keyPoint.pt = cv::Point2f(i, j);
+                keyPoint.size = 2 * apertureSize;
+                keyPoint.response = (int)normOut.at<float>(i,j);
+
+                bool overlap = false;
+                for (auto it = keypoints.begin(); it != keypoints.end(); ++it)
+                {
+                    double overlapValue = cv::KeyPoint::overlap(keyPoint, *it);
+                    if (overlapValue > maxOverlapVal)
+                    {
+                        overlap = true;
+                        if (keyPoint.response > (*it).response)
+                        {                      
+                            *it = keyPoint; 
+                            break;             
+                        }
+                    }
+                }
+                if (false == overlap)
+                {                                   
+                    keypoints.push_back(keyPoint); 
+                }
+
+            }
+        }
+    }
+
+}

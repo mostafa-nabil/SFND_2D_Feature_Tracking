@@ -63,6 +63,10 @@ int main(int argc, const char *argv[])
         DataFrame frame;
         frame.cameraImg = imgGray;
         dataBuffer.push_back(frame);
+        if(dataBuffer.size() > dataBufferSize)
+        {
+            dataBuffer.erase(dataBuffer.begin());
+        }
 
         //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
@@ -81,10 +85,35 @@ int main(int argc, const char *argv[])
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
         }
+        else if(detectorType.compare("HARRIS") == 0)
+        {
+             detKeypointsHarris(keypoints, img);
+        }
+        else if(detectorType.compare("FAST") == 0)
+        {
+            detKeypointsModern(keypoints, img, "FAST");
+        }
+        else if(detectorType.compare("BRISK") == 0)
+        {
+            detKeypointsModern(keypoints, img, "BRISK");
+        }
+        else if(detectorType.compare("ORB") == 0)
+        {
+            detKeypointsModern(keypoints, img, "ORB");
+        }
+        else if(detectorType.compare("AKAZE") == 0)
+        {
+            detKeypointsModern(keypoints, img, "AKAZE");
+        }
+        else if(detectorType.compare("SIFT") == 0)
+        {
+            detKeypointsModern(keypoints, img, "SIFT");
+        }
         else
         {
-            //...
+            // do nothing: should not happen
         }
+        
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT
