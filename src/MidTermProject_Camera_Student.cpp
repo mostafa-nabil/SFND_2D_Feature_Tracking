@@ -124,8 +124,18 @@ int main(int argc, const char *argv[])
         cv::Rect vehicleRect(535, 180, 180, 150);
         if (bFocusOnVehicle)
         {
-            // ...
+            for(int i = keypoints.size(); i>=0; i--)
+            {
+               
+                if(false == vehicleRect.contains(keypoints[i].pt))//!withinX || !withinY
+                {
+                    keypoints.erase(keypoints.begin()+i);
+                }
+            }
+            
         }
+
+        cout <<"afteeeeeer " <<  keypoints.size() << endl;
 
         //// EOF STUDENT ASSIGNMENT
 
@@ -198,9 +208,9 @@ int main(int argc, const char *argv[])
                                 matches, matchImg,
                                 cv::Scalar::all(-1), cv::Scalar::all(-1),
                                 vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
                 string windowName = "Matching keypoints between two camera images";
                 cv::namedWindow(windowName, 7);
+                cv::rectangle(matchImg, vehicleRect, cv::Scalar(0, 255, 0)) ;    
                 cv::imshow(windowName, matchImg);
                 cout << "Press key to continue to next image" << endl;
                 cv::waitKey(0); // wait for key to be pressed
