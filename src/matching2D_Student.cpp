@@ -10,7 +10,6 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     // configure matcher
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
-  //  cout << "gg" << endl;
     if (matcherType.compare("MAT_BF") == 0)
     {
         int normType;
@@ -34,7 +33,6 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
         }
         matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
     }
-   // cout << "gg2" << endl;
 
     // perform matching task
     if (selectorType.compare("SEL_NN") == 0)
@@ -45,9 +43,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
         std::vector<std::vector<cv::DMatch>> knnMatches;
-     //       cout << "gg3" << endl;
         matcher->knnMatch(descSource, descRef, knnMatches, 2);
-   // cout << "gg4" << endl;
 
         float minDistRatio = 0.8;
 
@@ -196,6 +192,7 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
     int minResponse = 100;
     double maxOverlapVal = 0.0f;
 
+    double t = (double)cv::getTickCount();
     cv::cornerHarris(img, harrisOut, blockSize, apertureSize, k, cv::BORDER_DEFAULT);
     cv::normalize(harrisOut, normOut, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
     cv::convertScaleAbs(normOut, norScaledOut);
@@ -235,6 +232,8 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
             }
         }
     }
-    cout << "endll" << endl;
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Harris" << "detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
 
 }
